@@ -1,0 +1,2 @@
+github: WalshyDev
+custom: https://paypal.me/walshblob

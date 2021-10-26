@@ -1,0 +1,33 @@
+name: 'Cloudflare Pages Await'
+description: 'Wait for Cloudflare Pages to build'
+author: 'WalshyDev'
+inputs:
+  accountEmail:
+    description: 'Cloudflare account email (Needed for auth)'
+    required: true
+  apiKey:
+    description: 'Cloudflare API Key (Tokens aren''t supported in the API yet :( )'
+    required: true
+  accountId:
+    description: 'Cloudflare account ID'
+    required: true
+  project:
+    description: 'Pages project name'
+    required: true
+outputs:
+  id:
+    description: 'Deployment ID'
+  environment:
+    description: 'Environment for this deployment, either "production" or "preview"'
+  url:
+    description: 'URL of the deployment'
+  alias:
+    description: 'Alias URL of the branch (for example: fix-navbar.project.pages.dev)'
+  success:
+    description: 'If the build passed or failed'
+runs:
+  using: 'node12'
+  main: 'dist/action.js'
+branding:
+  icon: 'cloud'
+  color: 'orange'
