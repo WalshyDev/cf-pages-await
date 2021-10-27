@@ -19,14 +19,30 @@ export default async function run() {
     // curl -X GET "https://api.cloudflare.com/client/v4/accounts/:account_id/pages/projects/:project_name/deployments" \
     //   -H "X-Auth-Email: user@example.com" \
     //   -H "X-Auth-Key: c2547eb745079dac9320b638f5e225cf483cc5cfdda41"
-    const res: Response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments`, {
-      headers: {
-        'X-Auth-Email': accountEmail,
-        'X-Auth-Key': apiKey,
-      }
-    });
+    let res: Response;
+    let body: ApiResponse;
+    // Try and fetch, may fail due to a network issue
+    try {
+      res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments`, {
+        headers: {
+          'X-Auth-Email': accountEmail,
+          'X-Auth-Key': apiKey,
+        }
+      });
+    } catch(e) {
+      core.error(`Failed to send request to CF API - network issue? ${e.message}`);
+      core.setFailed(e);
+      return;
+    }
 
-    const body: ApiResponse = await res.json() as ApiResponse;
+    // If the body isn't a JSON fail - CF seems to do this sometimes?
+    try {
+      body = await res.json() as ApiResponse;
+    } catch(e) {
+      core.error(`CF API did not return a JSON - Status code: ${res.status} (${res.statusText})`);
+      core.setFailed(e);
+      return;
+    }
 
     if (!body.success) {
       waiting = false;
