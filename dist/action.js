@@ -396,18 +396,18 @@ var require_tunnel = __commonJS({
         if (res.statusCode !== 200) {
           debug("tunneling socket could not be established, statusCode=%d", res.statusCode);
           socket.destroy();
-          var error = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
-          error.code = "ECONNRESET";
-          options.request.emit("error", error);
+          var error2 = new Error("tunneling socket could not be established, statusCode=" + res.statusCode);
+          error2.code = "ECONNRESET";
+          options.request.emit("error", error2);
           self2.removeSocket(placeholder);
           return;
         }
         if (head.length > 0) {
           debug("got illegal response body from proxy");
           socket.destroy();
-          var error = new Error("got illegal response body from proxy");
-          error.code = "ECONNRESET";
-          options.request.emit("error", error);
+          var error2 = new Error("got illegal response body from proxy");
+          error2.code = "ECONNRESET";
+          options.request.emit("error", error2);
           self2.removeSocket(placeholder);
           return;
         }
@@ -418,9 +418,9 @@ var require_tunnel = __commonJS({
       function onError(cause) {
         connectReq.removeAllListeners();
         debug("tunneling socket could not be established, cause=%s\n", cause.message, cause.stack);
-        var error = new Error("tunneling socket could not be established, cause=" + cause.message);
-        error.code = "ECONNRESET";
-        options.request.emit("error", error);
+        var error2 = new Error("tunneling socket could not be established, cause=" + cause.message);
+        error2.code = "ECONNRESET";
+        options.request.emit("error", error2);
         self2.removeSocket(placeholder);
       }
     };
@@ -1081,12 +1081,12 @@ var require_oidc_utils = __commonJS({
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
           const httpclient = OidcClient.createHttpClient();
-          const res = yield httpclient.getJson(id_token_url).catch((error) => {
+          const res = yield httpclient.getJson(id_token_url).catch((error2) => {
             throw new Error(`Failed to get ID Token. 
  
-        Error Code : ${error.statusCode}
+        Error Code : ${error2.statusCode}
  
-        Error Message: ${error.result.message}`);
+        Error Message: ${error2.result.message}`);
           });
           const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
           if (!id_token) {
@@ -1107,8 +1107,8 @@ var require_oidc_utils = __commonJS({
             const id_token = yield OidcClient.getCall(id_token_url);
             core_1.setSecret(id_token);
             return id_token;
-          } catch (error) {
-            throw new Error(`Error message: ${error.message}`);
+          } catch (error2) {
+            throw new Error(`Error message: ${error2.message}`);
           }
         });
       }
@@ -1255,7 +1255,7 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
     exports.setCommandEcho = setCommandEcho;
     function setFailed2(message) {
       process.exitCode = ExitCode.Failure;
-      error(message);
+      error2(message);
     }
     exports.setFailed = setFailed2;
     function isDebug() {
@@ -1266,10 +1266,10 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       command_1.issueCommand("debug", {}, message);
     }
     exports.debug = debug;
-    function error(message, properties = {}) {
+    function error2(message, properties = {}) {
       command_1.issueCommand("error", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
-    exports.error = error;
+    exports.error = error2;
     function warning(message, properties = {}) {
       command_1.issueCommand("warning", utils_1.toCommandProperties(properties), message instanceof Error ? message.toString() : message);
     }
@@ -2903,10 +2903,10 @@ var require_ponyfill_es2018 = __commonJS({
         });
         return promise;
       }
-      function WritableStreamDealWithRejection(stream, error) {
+      function WritableStreamDealWithRejection(stream, error2) {
         const state = stream._state;
         if (state === "writable") {
-          WritableStreamStartErroring(stream, error);
+          WritableStreamStartErroring(stream, error2);
           return;
         }
         WritableStreamFinishErroring(stream);
@@ -2955,10 +2955,10 @@ var require_ponyfill_es2018 = __commonJS({
         stream._inFlightWriteRequest._resolve(void 0);
         stream._inFlightWriteRequest = void 0;
       }
-      function WritableStreamFinishInFlightWriteWithError(stream, error) {
-        stream._inFlightWriteRequest._reject(error);
+      function WritableStreamFinishInFlightWriteWithError(stream, error2) {
+        stream._inFlightWriteRequest._reject(error2);
         stream._inFlightWriteRequest = void 0;
-        WritableStreamDealWithRejection(stream, error);
+        WritableStreamDealWithRejection(stream, error2);
       }
       function WritableStreamFinishInFlightClose(stream) {
         stream._inFlightCloseRequest._resolve(void 0);
@@ -2977,14 +2977,14 @@ var require_ponyfill_es2018 = __commonJS({
           defaultWriterClosedPromiseResolve(writer);
         }
       }
-      function WritableStreamFinishInFlightCloseWithError(stream, error) {
-        stream._inFlightCloseRequest._reject(error);
+      function WritableStreamFinishInFlightCloseWithError(stream, error2) {
+        stream._inFlightCloseRequest._reject(error2);
         stream._inFlightCloseRequest = void 0;
         if (stream._pendingAbortRequest !== void 0) {
-          stream._pendingAbortRequest._reject(error);
+          stream._pendingAbortRequest._reject(error2);
           stream._pendingAbortRequest = void 0;
         }
-        WritableStreamDealWithRejection(stream, error);
+        WritableStreamDealWithRejection(stream, error2);
       }
       function WritableStreamCloseQueuedOrInFlight(stream) {
         if (stream._closeRequest === void 0 && stream._inFlightCloseRequest === void 0) {
@@ -3161,18 +3161,18 @@ var require_ponyfill_es2018 = __commonJS({
         }
         return WritableStreamDefaultWriterClose(writer);
       }
-      function WritableStreamDefaultWriterEnsureClosedPromiseRejected(writer, error) {
+      function WritableStreamDefaultWriterEnsureClosedPromiseRejected(writer, error2) {
         if (writer._closedPromiseState === "pending") {
-          defaultWriterClosedPromiseReject(writer, error);
+          defaultWriterClosedPromiseReject(writer, error2);
         } else {
-          defaultWriterClosedPromiseResetToRejected(writer, error);
+          defaultWriterClosedPromiseResetToRejected(writer, error2);
         }
       }
-      function WritableStreamDefaultWriterEnsureReadyPromiseRejected(writer, error) {
+      function WritableStreamDefaultWriterEnsureReadyPromiseRejected(writer, error2) {
         if (writer._readyPromiseState === "pending") {
-          defaultWriterReadyPromiseReject(writer, error);
+          defaultWriterReadyPromiseReject(writer, error2);
         } else {
-          defaultWriterReadyPromiseResetToRejected(writer, error);
+          defaultWriterReadyPromiseResetToRejected(writer, error2);
         }
       }
       function WritableStreamDefaultWriterGetDesiredSize(writer) {
@@ -3376,9 +3376,9 @@ var require_ponyfill_es2018 = __commonJS({
           WritableStreamDefaultControllerProcessWrite(controller, value);
         }
       }
-      function WritableStreamDefaultControllerErrorIfNeeded(controller, error) {
+      function WritableStreamDefaultControllerErrorIfNeeded(controller, error2) {
         if (controller._controlledWritableStream._state === "writable") {
-          WritableStreamDefaultControllerError(controller, error);
+          WritableStreamDefaultControllerError(controller, error2);
         }
       }
       function WritableStreamDefaultControllerProcessClose(controller) {
@@ -3417,10 +3417,10 @@ var require_ponyfill_es2018 = __commonJS({
         const desiredSize = WritableStreamDefaultControllerGetDesiredSize(controller);
         return desiredSize <= 0;
       }
-      function WritableStreamDefaultControllerError(controller, error) {
+      function WritableStreamDefaultControllerError(controller, error2) {
         const stream = controller._controlledWritableStream;
         WritableStreamDefaultControllerClearAlgorithms(controller);
-        WritableStreamStartErroring(stream, error);
+        WritableStreamStartErroring(stream, error2);
       }
       function streamBrandCheckException$2(name) {
         return new TypeError(`WritableStream.prototype.${name} can only be used on a WritableStream`);
@@ -3546,12 +3546,12 @@ var require_ponyfill_es2018 = __commonJS({
           let abortAlgorithm;
           if (signal !== void 0) {
             abortAlgorithm = () => {
-              const error = new DOMException$1("Aborted", "AbortError");
+              const error2 = new DOMException$1("Aborted", "AbortError");
               const actions = [];
               if (!preventAbort) {
                 actions.push(() => {
                   if (dest._state === "writable") {
-                    return WritableStreamAbort(dest, error);
+                    return WritableStreamAbort(dest, error2);
                   }
                   return promiseResolvedWith(void 0);
                 });
@@ -3559,12 +3559,12 @@ var require_ponyfill_es2018 = __commonJS({
               if (!preventCancel) {
                 actions.push(() => {
                   if (source._state === "readable") {
-                    return ReadableStreamCancel(source, error);
+                    return ReadableStreamCancel(source, error2);
                   }
                   return promiseResolvedWith(void 0);
                 });
               }
-              shutdownWithAction(() => Promise.all(actions.map((action) => action())), true, error);
+              shutdownWithAction(() => Promise.all(actions.map((action) => action())), true, error2);
             };
             if (signal.aborted) {
               abortAlgorithm();
@@ -3663,25 +3663,25 @@ var require_ponyfill_es2018 = __commonJS({
               uponPromise(action(), () => finalize(originalIsError, originalError), (newError) => finalize(true, newError));
             }
           }
-          function shutdown(isError, error) {
+          function shutdown(isError, error2) {
             if (shuttingDown) {
               return;
             }
             shuttingDown = true;
             if (dest._state === "writable" && !WritableStreamCloseQueuedOrInFlight(dest)) {
-              uponFulfillment(waitForWritesToFinish(), () => finalize(isError, error));
+              uponFulfillment(waitForWritesToFinish(), () => finalize(isError, error2));
             } else {
-              finalize(isError, error);
+              finalize(isError, error2);
             }
           }
-          function finalize(isError, error) {
+          function finalize(isError, error2) {
             WritableStreamDefaultWriterRelease(writer);
             ReadableStreamReaderGenericRelease(reader);
             if (signal !== void 0) {
               signal.removeEventListener("abort", abortAlgorithm);
             }
             if (isError) {
-              reject(error);
+              reject(error2);
             } else {
               resolve(void 0);
             }
@@ -4854,8 +4854,8 @@ var require_ponyfill_es2018 = __commonJS({
         const stream = controller._controlledTransformStream;
         const readableController = stream._readable._readableStreamController;
         ReadableStreamDefaultControllerClose(readableController);
-        const error = new TypeError("TransformStream terminated");
-        TransformStreamErrorWritableAndUnblockWrite(stream, error);
+        const error2 = new TypeError("TransformStream terminated");
+        TransformStreamErrorWritableAndUnblockWrite(stream, error2);
       }
       function TransformStreamDefaultSinkWriteAlgorithm(stream, chunk) {
         const controller = stream._transformStreamController;
@@ -4926,7 +4926,7 @@ var require_streams = __commonJS({
     if (!globalThis.ReadableStream) {
       try {
         Object.assign(globalThis, require("stream/web"));
-      } catch (error) {
+      } catch (error2) {
         Object.assign(globalThis, require_ponyfill_es2018());
       }
     }
@@ -4950,7 +4950,7 @@ var require_streams = __commonJS({
           });
         };
       }
-    } catch (error) {
+    } catch (error2) {
     }
   }
 });
@@ -5227,8 +5227,8 @@ var Body = class {
     this.size = size;
     if (body instanceof import_stream.default) {
       body.on("error", (error_) => {
-        const error = error_ instanceof FetchBaseError ? error_ : new FetchError(`Invalid response body while trying to fetch ${this.url}: ${error_.message}`, "system", error_);
-        this[INTERNALS].error = error;
+        const error2 = error_ instanceof FetchBaseError ? error_ : new FetchError(`Invalid response body while trying to fetch ${this.url}: ${error_.message}`, "system", error_);
+        this[INTERNALS].error = error2;
       });
     }
   }
@@ -5295,15 +5295,15 @@ async function consumeBody(data) {
   try {
     for await (const chunk of body) {
       if (data.size > 0 && accumBytes + chunk.length > data.size) {
-        const error = new FetchError(`content size at ${data.url} over limit: ${data.size}`, "max-size");
-        body.destroy(error);
-        throw error;
+        const error2 = new FetchError(`content size at ${data.url} over limit: ${data.size}`, "max-size");
+        body.destroy(error2);
+        throw error2;
       }
       accumBytes += chunk.length;
       accum.push(chunk);
     }
-  } catch (error) {
-    const error_ = error instanceof FetchBaseError ? error : new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error.message}`, "system", error);
+  } catch (error2) {
+    const error_ = error2 instanceof FetchBaseError ? error2 : new FetchError(`Invalid response body while trying to fetch ${data.url}: ${error2.message}`, "system", error2);
     throw error_;
   }
   if (body.readableEnded === true || body._readableState.ended === true) {
@@ -5312,8 +5312,8 @@ async function consumeBody(data) {
         return Buffer.from(accum.join(""));
       }
       return Buffer.concat(accum, accumBytes);
-    } catch (error) {
-      throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error.message}`, "system", error);
+    } catch (error2) {
+      throw new FetchError(`Could not create Buffer from response body for ${data.url}: ${error2.message}`, "system", error2);
     }
   } else {
     throw new FetchError(`Premature close of server response while trying to fetch ${data.url}`);
@@ -5400,16 +5400,16 @@ var import_util2 = __toModule(require("util"));
 var import_http = __toModule(require("http"));
 var validateHeaderName = typeof import_http.default.validateHeaderName === "function" ? import_http.default.validateHeaderName : (name) => {
   if (!/^[\^`\-\w!#$%&'*+.|~]+$/.test(name)) {
-    const error = new TypeError(`Header name must be a valid HTTP token [${name}]`);
-    Object.defineProperty(error, "code", { value: "ERR_INVALID_HTTP_TOKEN" });
-    throw error;
+    const error2 = new TypeError(`Header name must be a valid HTTP token [${name}]`);
+    Object.defineProperty(error2, "code", { value: "ERR_INVALID_HTTP_TOKEN" });
+    throw error2;
   }
 };
 var validateHeaderValue = typeof import_http.default.validateHeaderValue === "function" ? import_http.default.validateHeaderValue : (name, value) => {
   if (/[^\t\u0020-\u007E\u0080-\u00FF]/.test(value)) {
-    const error = new TypeError(`Invalid character in header content ["${name}"]`);
-    Object.defineProperty(error, "code", { value: "ERR_INVALID_CHAR" });
-    throw error;
+    const error2 = new TypeError(`Invalid character in header content ["${name}"]`);
+    Object.defineProperty(error2, "code", { value: "ERR_INVALID_CHAR" });
+    throw error2;
   }
 };
 var Headers = class extends URLSearchParams {
@@ -5819,15 +5819,15 @@ async function fetch(url, options_) {
     const { signal } = request;
     let response = null;
     const abort = () => {
-      const error = new AbortError("The operation was aborted.");
-      reject(error);
+      const error2 = new AbortError("The operation was aborted.");
+      reject(error2);
       if (request.body && request.body instanceof import_stream2.default.Readable) {
-        request.body.destroy(error);
+        request.body.destroy(error2);
       }
       if (!response || !response.body) {
         return;
       }
-      response.body.emit("error", error);
+      response.body.emit("error", error2);
     };
     if (signal && signal.aborted) {
       abort();
@@ -5847,12 +5847,12 @@ async function fetch(url, options_) {
         signal.removeEventListener("abort", abortAndFinalize);
       }
     };
-    request_.on("error", (error) => {
-      reject(new FetchError(`request to ${request.url} failed, reason: ${error.message}`, "system", error));
+    request_.on("error", (error2) => {
+      reject(new FetchError(`request to ${request.url} failed, reason: ${error2.message}`, "system", error2));
       finalize();
     });
-    fixResponseChunkedTransferBadEnding(request_, (error) => {
-      response.body.destroy(error);
+    fixResponseChunkedTransferBadEnding(request_, (error2) => {
+      response.body.destroy(error2);
     });
     if (process.version < "v14") {
       request_.on("socket", (s) => {
@@ -5862,9 +5862,9 @@ async function fetch(url, options_) {
         });
         s.prependListener("close", (hadError) => {
           if (response && endedWithEventsCount < s._eventsCount && !hadError) {
-            const error = new Error("Premature close");
-            error.code = "ERR_STREAM_PREMATURE_CLOSE";
-            response.body.emit("error", error);
+            const error2 = new Error("Premature close");
+            error2.code = "ERR_STREAM_PREMATURE_CLOSE";
+            response.body.emit("error", error2);
           }
         });
       });
@@ -5990,9 +5990,9 @@ function fixResponseChunkedTransferBadEnding(request, errorCallback) {
   request.on("socket", (socket) => {
     const onSocketClose = () => {
       if (isChunkedTransfer && !properLastChunkReceived) {
-        const error = new Error("Premature close");
-        error.code = "ERR_STREAM_PREMATURE_CLOSE";
-        errorCallback(error);
+        const error2 = new Error("Premature close");
+        error2.code = "ERR_STREAM_PREMATURE_CLOSE";
+        errorCallback(error2);
       }
     };
     socket.prependListener("close", onSocketClose);
@@ -6021,17 +6021,31 @@ function run() {
     let waiting = true;
     while (waiting) {
       yield sleep();
-      const res = yield fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments`, {
-        headers: {
-          "X-Auth-Email": accountEmail,
-          "X-Auth-Key": apiKey
-        }
-      });
-      const body = yield res.json();
+      let res;
+      let body;
+      try {
+        res = yield fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments`, {
+          headers: {
+            "X-Auth-Email": accountEmail,
+            "X-Auth-Key": apiKey
+          }
+        });
+      } catch (e) {
+        core.error(`Failed to send request to CF API - network issue? ${e.message}`);
+        core.setFailed(e);
+        return;
+      }
+      try {
+        body = yield res.json();
+      } catch (e) {
+        core.error(`CF API did not return a JSON - Status code: ${res.status} (${res.statusText})`);
+        core.setFailed(e);
+        return;
+      }
       if (!body.success) {
         waiting = false;
-        const error = body.errors.length > 0 ? body.errors[0] : "Unknown error!";
-        core.setFailed(`Failed to check deployment status! Error: ${error}`);
+        const error2 = body.errors.length > 0 ? body.errors[0] : "Unknown error!";
+        core.setFailed(`Failed to check deployment status! Error: ${error2}`);
         return;
       }
       const deployment = body.result[0];
