@@ -23,7 +23,7 @@ export default async function run() {
     let body: ApiResponse;
     // Try and fetch, may fail due to a network issue
     try {
-      res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments`, {
+      res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments?page=1&per_page=1&sort_by=created_on&sort_order=desc`, {
         headers: {
           'X-Auth-Email': accountEmail,
           'X-Auth-Key': apiKey,
@@ -35,11 +35,11 @@ export default async function run() {
       return;
     }
 
-    // If the body isn't a JSON fail - CF seems to do this sometimes?
+    // If the body isn't a JSON then fail - CF seems to do this sometimes?
     try {
       body = await res.json() as ApiResponse;
     } catch(e) {
-      core.error(`CF API did not return a JSON - Status code: ${res.status} (${res.statusText})`);
+      core.error(`CF API did not return a JSON (possibly down?) - Status code: ${res.status} (${res.statusText})`);
       core.setFailed(e);
       return;
     }
@@ -52,13 +52,20 @@ export default async function run() {
     }
 
     const deployment = body.result[0];
+    const latestStage = deployment.latest_stage;
 
-    if (deployment.latest_stage.name !== lastStage) {
+    if (latestStage.name !== lastStage) {
       lastStage = deployment.latest_stage.name;
       console.log('# Now at stage: ' + lastStage);
     }
 
-    if (deployment.latest_stage.name === 'deploy') {
+    if (latestStage.status === 'failed') {
+      waiting = false;
+      core.setFailed(`Deployment failed on step: ${latestStage.name}!`);
+      return;
+    }
+
+    if (latestStage.name === 'deploy' && latestStage.status !== 'idle') {
       waiting = false;
 
       const aliasUrl = deployment.aliases && deployment.aliases.length > 0 ? deployment.aliases[0] : deployment.url;
