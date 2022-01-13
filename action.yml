@@ -14,6 +14,9 @@ inputs:
   project:
     description: 'Pages project name'
     required: true
+  githubToken:
+    description: 'GitHub Token to use for deployments (GITHUB_TOKEN secret or your own token!) - OPTIONAL (Only used for GitHub Deployments)'
+    required: false
 outputs:
   id:
     description: 'Deployment ID'

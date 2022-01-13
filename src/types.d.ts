@@ -82,7 +82,7 @@ export interface Stage {
   name: 'queued'|'initialize'|'clone_repo'|'build'|'deploy';
   started_on: string;
   ended_on: string;
-  status: 'success'|'failed'
+  status: 'idle'|'active'|'success'|'failed'
 }
 
 export interface Trigger {
