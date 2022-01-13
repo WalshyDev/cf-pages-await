@@ -11,6 +11,8 @@ Wait for a Cloudflare Pages build to finish so you can do actions like purge cac
     apiKey: ${{ secrets.CF_API_KEY  }}
     accountId: '4e599df4216133509abaac54b109a647'
     project: 'example-pages-project'
+    # Add this if you want GitHub Deployments (see below)
+    githubToken: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Example
@@ -30,6 +32,8 @@ jobs:
         apiKey: ${{ secrets.CF_API_KEY  }}
         accountId: '4e599df4216133509abaac54b109a647'
         project: 'test'
+        # Add this if you want GitHub Deployments (see below)
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
     - run: |
         curl -X \
           -H "X-Auth-Email: ${{ secrets.CF_ACCOUNT_EMAIL }}" \
@@ -45,3 +49,18 @@ jobs:
 * `url`         - URL for this deployment
 * `alias`       - Alias URL (Will be the branch URL such as `fix-issue.project.pages.dev` or be the deployment URL)
 * `success`     - If the deployment was successful
+
+## GitHub Deployments
+GitHub Deployments will show if the deployment was successful or failed right inside GitHub! You can easily see the status, view the website (exact deployment) and see the logs.
+
+> **Note**: You need to add the `githubToken` input in order for deployments to work!
+
+### Overview
+![Successful production deployment](https://user-images.githubusercontent.com/8492901/149387681-25ec860d-0c8e-4075-8ab0-4d289b86127b.png)
+
+### Pull Requests
+**In Progress**
+![In progress deployment in PR](https://user-images.githubusercontent.com/8492901/149388796-6bbd4ae9-b7b3-4d06-80c5-c18b3737f51f.png)
+
+**Successful**
+![Successful deployment in PR](https://user-images.githubusercontent.com/8492901/149388892-14a7ea25-6865-4d52-b403-30e8cec449d2.png)
