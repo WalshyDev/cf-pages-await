@@ -10234,6 +10234,7 @@ var require_streams = __commonJS({
 __export(exports, {
   default: () => run
 });
+var process2 = __toModule(require("process"));
 var core = __toModule(require_core());
 var github = __toModule(require_github());
 
@@ -11304,6 +11305,10 @@ function run() {
       const deployment = yield pollApi(accountEmail, apiKey, accountId, project);
       if (!deployment)
         return;
+      if (process2.env.GITHUB_SHA && deployment.deployment_trigger.metadata.commit_hash !== process2.env.GITHUB_SHA) {
+        console.log("Waiting for the deployment to start...");
+        continue;
+      }
       const latestStage = deployment.latest_stage;
       if (latestStage.name !== lastStage) {
         lastStage = deployment.latest_stage.name;
