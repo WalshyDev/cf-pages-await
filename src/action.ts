@@ -3,7 +3,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import fetch, { Response } from 'node-fetch';
 
-import { context, GitHub } from '@actions/github/lib/utils';
+import { context } from '@actions/github/lib/utils';
 import { ApiResponse, Deployment } from './types';
 
 let waiting = true;
@@ -26,6 +26,11 @@ export default async function run() {
 
     const deployment: Deployment|undefined = await pollApi(accountEmail, apiKey, accountId, project);
     if (!deployment) return;
+
+    if (process.env.GITHUB_SHA && deployment.deployment_trigger.metadata.commit_hash !== process.env.GITHUB_SHA) {
+      console.log('Waiting for the deployment to start...');
+      continue;
+    }
 
     const latestStage = deployment.latest_stage;
 
