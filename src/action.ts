@@ -105,7 +105,7 @@ async function pollApi(accountEmail: string, apiKey: string, accountId: string, 
   if (!body.success) {
     waiting = false;
     const error = body.errors.length > 0 ? body.errors[0] : 'Unknown error!';
-    core.setFailed(`Failed to check deployment status! Error: ${error}`);
+    core.setFailed(`Failed to check deployment status! Error: ${JSON.stringify(error)}`);
     return;
   }
 

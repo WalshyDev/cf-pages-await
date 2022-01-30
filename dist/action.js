@@ -11343,7 +11343,7 @@ async function pollApi(accountEmail, apiKey, accountId, project, commitHash) {
   if (!body.success) {
     waiting = false;
     const error2 = body.errors.length > 0 ? body.errors[0] : "Unknown error!";
-    core.setFailed(`Failed to check deployment status! Error: ${error2}`);
+    core.setFailed(`Failed to check deployment status! Error: ${JSON.stringify(error2)}`);
     return;
   }
   if (!commitHash)
