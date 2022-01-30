@@ -1,26 +1,9 @@
 var __create = Object.create;
 var __defProp = Object.defineProperty;
-var __defProps = Object.defineProperties;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
 var __getOwnPropNames = Object.getOwnPropertyNames;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
-var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b) => {
-  for (var prop in b || (b = {}))
-    if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a, prop, b[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b)) {
-      if (__propIsEnum.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    }
-  return a;
-};
-var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 var __markAsModule = (target) => __defProp(target, "__esModule", { value: true });
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[Object.keys(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
@@ -41,25 +24,23 @@ var __reExport = (target, module2, desc) => {
 var __toModule = (module2) => {
   return __reExport(__markAsModule(__defProp(module2 != null ? __create(__getProtoOf(module2)) : {}, "default", module2 && module2.__esModule && "default" in module2 ? { get: () => module2.default, enumerable: true } : { value: module2, enumerable: true })), module2);
 };
-var __async = (__this, __arguments, generator) => {
-  return new Promise((resolve, reject) => {
-    var fulfilled = (value) => {
-      try {
-        step(generator.next(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var rejected = (value) => {
-      try {
-        step(generator.throw(value));
-      } catch (e) {
-        reject(e);
-      }
-    };
-    var step = (x) => x.done ? resolve(x.value) : Promise.resolve(x.value).then(fulfilled, rejected);
-    step((generator = generator.apply(__this, __arguments)).next());
-  });
+var __accessCheck = (obj, member, msg) => {
+  if (!member.has(obj))
+    throw TypeError("Cannot " + msg);
+};
+var __privateGet = (obj, member, getter) => {
+  __accessCheck(obj, member, "read from private field");
+  return getter ? getter.call(obj) : member.get(obj);
+};
+var __privateAdd = (obj, member, value) => {
+  if (member.has(obj))
+    throw TypeError("Cannot add the same private member more than once");
+  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+};
+var __privateSet = (obj, member, value, setter) => {
+  __accessCheck(obj, member, "write to private field");
+  setter ? setter.call(obj, value) : member.set(obj, value);
+  return value;
 };
 
 // node_modules/@actions/core/lib/utils.js
@@ -1095,7 +1076,7 @@ var require_oidc_utils = __commonJS({
         return runtimeUrl;
       }
       static getCall(id_token_url) {
-        var _a;
+        var _a2;
         return __awaiter(this, void 0, void 0, function* () {
           const httpclient = OidcClient.createHttpClient();
           const res = yield httpclient.getJson(id_token_url).catch((error2) => {
@@ -1105,7 +1086,7 @@ var require_oidc_utils = __commonJS({
  
         Error Message: ${error2.result.message}`);
           });
-          const id_token = (_a = res.result) === null || _a === void 0 ? void 0 : _a.value;
+          const id_token = (_a2 = res.result) === null || _a2 === void 0 ? void 0 : _a2.value;
           if (!id_token) {
             throw new Error("Response json body do not have ID Token field");
           }
@@ -1347,7 +1328,7 @@ var require_context = __commonJS({
     var os_1 = require("os");
     var Context = class {
       constructor() {
-        var _a, _b, _c;
+        var _a2, _b, _c;
         this.payload = {};
         if (process.env.GITHUB_EVENT_PATH) {
           if (fs_1.existsSync(process.env.GITHUB_EVENT_PATH)) {
@@ -1366,7 +1347,7 @@ var require_context = __commonJS({
         this.job = process.env.GITHUB_JOB;
         this.runNumber = parseInt(process.env.GITHUB_RUN_NUMBER, 10);
         this.runId = parseInt(process.env.GITHUB_RUN_ID, 10);
-        this.apiUrl = (_a = process.env.GITHUB_API_URL) !== null && _a !== void 0 ? _a : `https://api.github.com`;
+        this.apiUrl = (_a2 = process.env.GITHUB_API_URL) !== null && _a2 !== void 0 ? _a2 : `https://api.github.com`;
         this.serverUrl = (_b = process.env.GITHUB_SERVER_URL) !== null && _b !== void 0 ? _b : `https://github.com`;
         this.graphqlUrl = (_c = process.env.GITHUB_GRAPHQL_URL) !== null && _c !== void 0 ? _c : `https://api.github.com/graphql`;
       }
@@ -3720,7 +3701,7 @@ var require_lib2 = __commonJS({
     var Readable = Stream3.Readable;
     var BUFFER = Symbol("buffer");
     var TYPE = Symbol("type");
-    var Blob3 = class {
+    var Blob2 = class {
       constructor() {
         this[TYPE] = "";
         const blobParts = arguments[0];
@@ -3739,7 +3720,7 @@ var require_lib2 = __commonJS({
               buffer = Buffer.from(element.buffer, element.byteOffset, element.byteLength);
             } else if (element instanceof ArrayBuffer) {
               buffer = Buffer.from(element);
-            } else if (element instanceof Blob3) {
+            } else if (element instanceof Blob2) {
               buffer = element[BUFFER];
             } else {
               buffer = Buffer.from(typeof element === "string" ? element : String(element));
@@ -3801,17 +3782,17 @@ var require_lib2 = __commonJS({
         const span = Math.max(relativeEnd - relativeStart, 0);
         const buffer = this[BUFFER];
         const slicedBuffer = buffer.slice(relativeStart, relativeStart + span);
-        const blob = new Blob3([], { type: arguments[2] });
+        const blob = new Blob2([], { type: arguments[2] });
         blob[BUFFER] = slicedBuffer;
         return blob;
       }
     };
-    Object.defineProperties(Blob3.prototype, {
+    Object.defineProperties(Blob2.prototype, {
       size: { enumerable: true },
       type: { enumerable: true },
       slice: { enumerable: true }
     });
-    Object.defineProperty(Blob3.prototype, Symbol.toStringTag, {
+    Object.defineProperty(Blob2.prototype, Symbol.toStringTag, {
       value: "Blob",
       writable: false,
       enumerable: false,
@@ -3888,7 +3869,7 @@ var require_lib2 = __commonJS({
       blob() {
         let ct = this.headers && this.headers.get("content-type") || "";
         return consumeBody2.call(this).then(function(buf) {
-          return Object.assign(new Blob3([], {
+          return Object.assign(new Blob2([], {
             type: ct.toLowerCase()
           }), {
             [BUFFER]: buf
@@ -5321,10 +5302,10 @@ var require_dist_node8 = __commonJS({
         return OctokitWithDefaults;
       }
       static plugin(...newPlugins) {
-        var _a;
+        var _a2;
         const currentPlugins = this.plugins;
-        const NewOctokit = (_a = class extends this {
-        }, _a.plugins = currentPlugins.concat(newPlugins.filter((plugin) => !currentPlugins.includes(plugin))), _a);
+        const NewOctokit = (_a2 = class extends this {
+        }, _a2.plugins = currentPlugins.concat(newPlugins.filter((plugin) => !currentPlugins.includes(plugin))), _a2);
         return NewOctokit;
       }
     };
@@ -7150,7 +7131,7 @@ var require_ponyfill_es2018 = __commonJS({
         }
         try {
           return x._asyncIteratorImpl instanceof ReadableStreamAsyncIteratorImpl;
-        } catch (_a) {
+        } catch (_a2) {
           return false;
         }
       }
@@ -8003,7 +7984,7 @@ var require_ponyfill_es2018 = __commonJS({
         }
         try {
           return typeof value.aborted === "boolean";
-        } catch (_a) {
+        } catch (_a2) {
           return false;
         }
       }
@@ -8116,12 +8097,12 @@ var require_ponyfill_es2018 = __commonJS({
         return true;
       }
       function WritableStreamAbort(stream, reason) {
-        var _a;
+        var _a2;
         if (stream._state === "closed" || stream._state === "errored") {
           return promiseResolvedWith(void 0);
         }
         stream._writableStreamController._abortReason = reason;
-        (_a = stream._writableStreamController._abortController) === null || _a === void 0 ? void 0 : _a.abort();
+        (_a2 = stream._writableStreamController._abortController) === null || _a2 === void 0 ? void 0 : _a2.abort();
         const state = stream._state;
         if (state === "closed" || state === "errored") {
           return promiseResolvedWith(void 0);
@@ -8794,7 +8775,7 @@ var require_ponyfill_es2018 = __commonJS({
         try {
           new ctor();
           return true;
-        } catch (_a) {
+        } catch (_a2) {
           return false;
         }
       }
@@ -10206,9 +10187,9 @@ var require_streams = __commonJS({
       }
     }
     try {
-      const { Blob: Blob3 } = require("buffer");
-      if (Blob3 && !Blob3.prototype.stream) {
-        Blob3.prototype.stream = function name(params) {
+      const { Blob: Blob2 } = require("buffer");
+      if (Blob2 && !Blob2.prototype.stream) {
+        Blob2.prototype.stream = function name(params) {
           let position = 0;
           const blob = this;
           return new ReadableStream({
@@ -10279,11 +10260,12 @@ async function* toIterator(parts, clone2 = true) {
     }
   }
 }
-var _Blob = class Blob {
-  #parts = [];
-  #type = "";
-  #size = 0;
+var _parts, _type, _size, _a;
+var _Blob = (_a = class {
   constructor(blobParts = [], options = {}) {
+    __privateAdd(this, _parts, []);
+    __privateAdd(this, _type, "");
+    __privateAdd(this, _size, 0);
     let size = 0;
     const parts = blobParts.map((element) => {
       let part;
@@ -10291,7 +10273,7 @@ var _Blob = class Blob {
         part = new Uint8Array(element.buffer.slice(element.byteOffset, element.byteOffset + element.byteLength));
       } else if (element instanceof ArrayBuffer) {
         part = new Uint8Array(element.slice(0));
-      } else if (element instanceof Blob) {
+      } else if (element instanceof _a) {
         part = element;
       } else {
         part = new TextEncoder().encode(element);
@@ -10300,20 +10282,20 @@ var _Blob = class Blob {
       return part;
     });
     const type = options.type === void 0 ? "" : String(options.type);
-    this.#type = /[^\u0020-\u007E]/.test(type) ? "" : type;
-    this.#size = size;
-    this.#parts = parts;
+    __privateSet(this, _type, /[^\u0020-\u007E]/.test(type) ? "" : type);
+    __privateSet(this, _size, size);
+    __privateSet(this, _parts, parts);
   }
   get size() {
-    return this.#size;
+    return __privateGet(this, _size);
   }
   get type() {
-    return this.#type;
+    return __privateGet(this, _type);
   }
   async text() {
     const decoder = new TextDecoder();
     let str = "";
-    for await (let part of toIterator(this.#parts, false)) {
+    for await (let part of toIterator(__privateGet(this, _parts), false)) {
       str += decoder.decode(part, { stream: true });
     }
     str += decoder.decode();
@@ -10322,14 +10304,14 @@ var _Blob = class Blob {
   async arrayBuffer() {
     const data = new Uint8Array(this.size);
     let offset = 0;
-    for await (const chunk of toIterator(this.#parts, false)) {
+    for await (const chunk of toIterator(__privateGet(this, _parts), false)) {
       data.set(chunk, offset);
       offset += chunk.length;
     }
     return data.buffer;
   }
   stream() {
-    const it = toIterator(this.#parts, true);
+    const it = toIterator(__privateGet(this, _parts), true);
     return new ReadableStream({
       type: "bytes",
       async pull(ctrl) {
@@ -10343,7 +10325,7 @@ var _Blob = class Blob {
     let relativeStart = start < 0 ? Math.max(size + start, 0) : Math.min(start, size);
     let relativeEnd = end < 0 ? Math.max(size + end, 0) : Math.min(end, size);
     const span = Math.max(relativeEnd - relativeStart, 0);
-    const parts = this.#parts;
+    const parts = __privateGet(this, _parts);
     const blobParts = [];
     let added = 0;
     for (const part of parts) {
@@ -10367,9 +10349,9 @@ var _Blob = class Blob {
         relativeStart = 0;
       }
     }
-    const blob = new Blob([], { type: String(type).toLowerCase() });
-    blob.#size = span;
-    blob.#parts = blobParts;
+    const blob = new _a([], { type: String(type).toLowerCase() });
+    __privateSet(blob, _size, span);
+    __privateSet(blob, _parts, blobParts);
     return blob;
   }
   get [Symbol.toStringTag]() {
@@ -10378,14 +10360,14 @@ var _Blob = class Blob {
   static [Symbol.hasInstance](object) {
     return object && typeof object === "object" && typeof object.constructor === "function" && (typeof object.stream === "function" || typeof object.arrayBuffer === "function") && /^(Blob|File)$/.test(object[Symbol.toStringTag]);
   }
-};
+}, _parts = new WeakMap(), _type = new WeakMap(), _size = new WeakMap(), _a);
 Object.defineProperties(_Blob.prototype, {
   size: { enumerable: true },
   type: { enumerable: true },
   slice: { enumerable: true }
 });
-var Blob2 = _Blob;
-var fetch_blob_default = Blob2;
+var Blob = _Blob;
+var fetch_blob_default = Blob;
 
 // node_modules/node-fetch/src/errors/base.js
 var FetchBaseError = class extends Error {
@@ -11290,126 +11272,122 @@ var import_utils = __toModule(require_utils4());
 var waiting = true;
 var ghDeployment;
 var markedAsInProgress = false;
-function run() {
-  return __async(this, null, function* () {
-    const accountEmail = core.getInput("accountEmail", { required: true, trimWhitespace: true });
-    const apiKey = core.getInput("apiKey", { required: true, trimWhitespace: true });
-    const accountId = core.getInput("accountId", { required: true, trimWhitespace: true });
-    const project = core.getInput("project", { required: true, trimWhitespace: true });
-    const token = core.getInput("githubToken", { required: false, trimWhitespace: true });
-    const commitHash = core.getInput("commitHash", { required: false, trimWhitespace: true });
-    console.log("Waiting for Pages to finish building...");
-    let lastStage = "";
-    while (waiting) {
-      yield sleep();
-      const deployment = yield pollApi(accountEmail, apiKey, accountId, project, commitHash);
-      if (!deployment) {
-        console.log("Waiting for the deployment to start...");
-        continue;
-      }
-      const latestStage = deployment.latest_stage;
-      if (latestStage.name !== lastStage) {
-        lastStage = deployment.latest_stage.name;
-        console.log("# Now at stage: " + lastStage);
-        if (!markedAsInProgress) {
-          yield updateDeployment(token, deployment, "in_progress");
-          markedAsInProgress = true;
-        }
-      }
-      if (latestStage.status === "failed") {
-        waiting = false;
-        core.setFailed(`Deployment failed on step: ${latestStage.name}!`);
-        yield updateDeployment(token, deployment, "failure");
-        return;
-      }
-      if (latestStage.name === "deploy" && ["success", "failed"].includes(latestStage.status)) {
-        waiting = false;
-        const aliasUrl = deployment.aliases && deployment.aliases.length > 0 ? deployment.aliases[0] : deployment.url;
-        core.setOutput("id", deployment.id);
-        core.setOutput("environment", deployment.environment);
-        core.setOutput("url", deployment.url);
-        core.setOutput("alias", aliasUrl);
-        core.setOutput("success", deployment.latest_stage.status === "success" ? true : false);
-        if (token !== "") {
-          yield updateDeployment(token, deployment, latestStage.status === "success" ? "success" : "failure");
-        }
+async function run() {
+  const accountEmail = core.getInput("accountEmail", { required: true, trimWhitespace: true });
+  const apiKey = core.getInput("apiKey", { required: true, trimWhitespace: true });
+  const accountId = core.getInput("accountId", { required: true, trimWhitespace: true });
+  const project = core.getInput("project", { required: true, trimWhitespace: true });
+  const token = core.getInput("githubToken", { required: false, trimWhitespace: true });
+  const commitHash = core.getInput("commitHash", { required: false, trimWhitespace: true });
+  console.log("Waiting for Pages to finish building...");
+  let lastStage = "";
+  while (waiting) {
+    await sleep();
+    const deployment = await pollApi(accountEmail, apiKey, accountId, project, commitHash);
+    if (!deployment) {
+      console.log("Waiting for the deployment to start...");
+      continue;
+    }
+    const latestStage = deployment.latest_stage;
+    if (latestStage.name !== lastStage) {
+      lastStage = deployment.latest_stage.name;
+      console.log("# Now at stage: " + lastStage);
+      if (!markedAsInProgress) {
+        await updateDeployment(token, deployment, "in_progress");
+        markedAsInProgress = true;
       }
     }
-  });
-}
-function pollApi(accountEmail, apiKey, accountId, project, commitHash) {
-  return __async(this, null, function* () {
-    var _a, _b, _c;
-    let res;
-    let body;
-    try {
-      res = yield fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments?sort_by=created_on&sort_order=desc`, {
-        headers: {
-          "X-Auth-Email": accountEmail,
-          "X-Auth-Key": apiKey
-        }
-      });
-    } catch (e) {
-      core.error(`Failed to send request to CF API - network issue? ${e.message}`);
-      core.setFailed(e);
-      return;
-    }
-    try {
-      body = yield res.json();
-    } catch (e) {
-      core.error(`CF API did not return a JSON (possibly down?) - Status code: ${res.status} (${res.statusText})`);
-      core.setFailed(e);
-      return;
-    }
-    if (!body.success) {
+    if (latestStage.status === "failed") {
       waiting = false;
-      const error2 = body.errors.length > 0 ? body.errors[0] : "Unknown error!";
-      core.setFailed(`Failed to check deployment status! Error: ${error2}`);
+      core.setFailed(`Deployment failed on step: ${latestStage.name}!`);
+      await updateDeployment(token, deployment, "failure");
       return;
     }
-    if (!commitHash)
-      return (_a = body.result) == null ? void 0 : _a[0];
-    return (_c = (_b = body.result) == null ? void 0 : _b.find) == null ? void 0 : _c.call(_b, (deployment) => {
-      var _a2, _b2;
-      return ((_b2 = (_a2 = deployment.deployment_trigger) == null ? void 0 : _a2.metadata) == null ? void 0 : _b2.commit_hash) === commitHash;
+    if (latestStage.name === "deploy" && ["success", "failed"].includes(latestStage.status)) {
+      waiting = false;
+      const aliasUrl = deployment.aliases && deployment.aliases.length > 0 ? deployment.aliases[0] : deployment.url;
+      core.setOutput("id", deployment.id);
+      core.setOutput("environment", deployment.environment);
+      core.setOutput("url", deployment.url);
+      core.setOutput("alias", aliasUrl);
+      core.setOutput("success", deployment.latest_stage.status === "success" ? true : false);
+      if (token !== "") {
+        await updateDeployment(token, deployment, latestStage.status === "success" ? "success" : "failure");
+      }
+    }
+  }
+}
+async function pollApi(accountEmail, apiKey, accountId, project, commitHash) {
+  var _a2, _b, _c;
+  let res;
+  let body;
+  try {
+    res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments?sort_by=created_on&sort_order=desc`, {
+      headers: {
+        "X-Auth-Email": accountEmail,
+        "X-Auth-Key": apiKey
+      }
     });
+  } catch (e) {
+    core.error(`Failed to send request to CF API - network issue? ${e.message}`);
+    core.setFailed(e);
+    return;
+  }
+  try {
+    body = await res.json();
+  } catch (e) {
+    core.error(`CF API did not return a JSON (possibly down?) - Status code: ${res.status} (${res.statusText})`);
+    core.setFailed(e);
+    return;
+  }
+  if (!body.success) {
+    waiting = false;
+    const error2 = body.errors.length > 0 ? body.errors[0] : "Unknown error!";
+    core.setFailed(`Failed to check deployment status! Error: ${error2}`);
+    return;
+  }
+  if (!commitHash)
+    return (_a2 = body.result) == null ? void 0 : _a2[0];
+  return (_c = (_b = body.result) == null ? void 0 : _b.find) == null ? void 0 : _c.call(_b, (deployment) => {
+    var _a3, _b2;
+    return ((_b2 = (_a3 = deployment.deployment_trigger) == null ? void 0 : _a3.metadata) == null ? void 0 : _b2.commit_hash) === commitHash;
   });
 }
-function sleep() {
-  return __async(this, null, function* () {
-    return new Promise((resolve) => setTimeout(resolve, 5e3));
-  });
+async function sleep() {
+  return new Promise((resolve) => setTimeout(resolve, 5e3));
 }
-function updateDeployment(token, deployment, state) {
-  return __async(this, null, function* () {
-    const octokit = github.getOctokit(token);
-    const environment = deployment.environment === "production" ? "Production" : `Preview (${deployment.deployment_trigger.metadata.branch})`;
-    const sharedOptions = {
-      owner: import_utils.context.repo.owner,
-      repo: import_utils.context.repo.repo
-    };
-    if (!ghDeployment) {
-      const { data } = yield octokit.rest.repos.createDeployment(__spreadProps(__spreadValues({}, sharedOptions), {
-        ref: deployment.deployment_trigger.metadata.commit_hash,
-        auto_merge: false,
-        environment,
-        production_environment: deployment.environment === "production",
-        description: "Cloudflare Pages",
-        required_contexts: []
-      }));
-      ghDeployment = data;
-    }
-    if (deployment.latest_stage.name === "deploy" && ["success", "failed"].includes(deployment.latest_stage.status)) {
-      yield octokit.rest.repos.createDeploymentStatus(__spreadProps(__spreadValues({}, sharedOptions), {
-        deployment_id: ghDeployment.id,
-        environment,
-        environment_url: deployment.url,
-        log_url: `https://dash.cloudflare.com?to=/:account/pages/view/${deployment.project_name}/${deployment.id}`,
-        description: "Cloudflare Pages",
-        state
-      }));
-    }
-  });
+async function updateDeployment(token, deployment, state) {
+  if (!token)
+    return;
+  const octokit = github.getOctokit(token);
+  const environment = deployment.environment === "production" ? "Production" : `Preview (${deployment.deployment_trigger.metadata.branch})`;
+  const sharedOptions = {
+    owner: import_utils.context.repo.owner,
+    repo: import_utils.context.repo.repo
+  };
+  if (!ghDeployment) {
+    const { data } = await octokit.rest.repos.createDeployment({
+      ...sharedOptions,
+      ref: deployment.deployment_trigger.metadata.commit_hash,
+      auto_merge: false,
+      environment,
+      production_environment: deployment.environment === "production",
+      description: "Cloudflare Pages",
+      required_contexts: []
+    });
+    ghDeployment = data;
+  }
+  if (deployment.latest_stage.name === "deploy" && ["success", "failed"].includes(deployment.latest_stage.status)) {
+    await octokit.rest.repos.createDeploymentStatus({
+      ...sharedOptions,
+      deployment_id: ghDeployment.id,
+      environment,
+      environment_url: deployment.url,
+      log_url: `https://dash.cloudflare.com?to=/:account/pages/view/${deployment.project_name}/${deployment.id}`,
+      description: "Cloudflare Pages",
+      state
+    });
+  }
 }
 try {
   run();

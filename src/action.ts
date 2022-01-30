@@ -119,6 +119,8 @@ async function sleep() {
 
 // Credits to Greg for this code <3
 async function updateDeployment(token: string, deployment: Deployment, state: 'success'|'failure'|'in_progress') {
+  if (!token) return;
+
   const octokit = github.getOctokit(token);
 
   const environment = deployment.environment === 'production'
