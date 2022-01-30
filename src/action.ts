@@ -1,4 +1,3 @@
-import * as process from 'process';
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import fetch, { Response } from 'node-fetch';
@@ -9,6 +8,7 @@ import { ApiResponse, Deployment } from './types';
 let waiting = true;
 let ghDeployment;
 let markedAsInProgress = false;
+import { ApiResponse, Deployment } from './types';
 
 export default async function run() {
   const accountEmail = core.getInput('accountEmail', { required: true, trimWhitespace: true });
@@ -16,6 +16,7 @@ export default async function run() {
   const accountId = core.getInput('accountId', { required: true, trimWhitespace: true });
   const project = core.getInput('project', { required: true, trimWhitespace: true });
   const token = core.getInput('githubToken', { required: false, trimWhitespace: true });
+  const commitHash = core.getInput('commitHash', { required: false, trimWhitespace: true });
 
   console.log('Waiting for Pages to finish building...');
   let lastStage = '';
@@ -24,10 +25,8 @@ export default async function run() {
     // We want to wait a few seconds, don't want to spam the API :)
     await sleep();
 
-    const deployment: Deployment|undefined = await pollApi(accountEmail, apiKey, accountId, project);
-    if (!deployment) return;
-
-    if (process.env.GITHUB_SHA && deployment.deployment_trigger.metadata.commit_hash !== process.env.GITHUB_SHA) {
+    const deployment: Deployment|undefined = await pollApi(accountEmail, apiKey, accountId, project, commitHash);
+    if (!deployment) {
       console.log('Waiting for the deployment to start...');
       continue;
     }
@@ -71,7 +70,7 @@ export default async function run() {
   }
 }
 
-async function pollApi(accountEmail: string, apiKey: string, accountId: string, project: string): Promise<Deployment|undefined> {
+async function pollApi(accountEmail: string, apiKey: string, accountId: string, project: string, commitHash: string): Promise<Deployment|undefined> {
   // curl -X GET "https://api.cloudflare.com/client/v4/accounts/:account_id/pages/projects/:project_name/deployments" \
   //   -H "X-Auth-Email: user@example.com" \
   //   -H "X-Auth-Key: c2547eb745079dac9320b638f5e225cf483cc5cfdda41"
@@ -79,7 +78,7 @@ async function pollApi(accountEmail: string, apiKey: string, accountId: string, 
   let body: ApiResponse;
   // Try and fetch, may fail due to a network issue
   try {
-    res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments?page=1&per_page=1&sort_by=created_on&sort_order=desc`, {
+    res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments?sort_by=created_on&sort_order=desc`, {
       headers: {
         'X-Auth-Email': accountEmail,
         'X-Auth-Key': apiKey,
@@ -110,7 +109,8 @@ async function pollApi(accountEmail: string, apiKey: string, accountId: string, 
     return;
   }
 
-  return body.result[0];
+  if (!commitHash) return body.result?.[0];
+  return body.result?.find?.(deployment => deployment.deployment_trigger?.metadata?.commit_hash === commitHash);
 }
 
 async function sleep() {

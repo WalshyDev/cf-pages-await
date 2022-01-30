@@ -10234,7 +10234,6 @@ var require_streams = __commonJS({
 __export(exports, {
   default: () => run
 });
-var process2 = __toModule(require("process"));
 var core = __toModule(require_core());
 var github = __toModule(require_github());
 
@@ -11298,14 +11297,13 @@ function run() {
     const accountId = core.getInput("accountId", { required: true, trimWhitespace: true });
     const project = core.getInput("project", { required: true, trimWhitespace: true });
     const token = core.getInput("githubToken", { required: false, trimWhitespace: true });
+    const commitHash = core.getInput("commitHash", { required: false, trimWhitespace: true });
     console.log("Waiting for Pages to finish building...");
     let lastStage = "";
     while (waiting) {
       yield sleep();
-      const deployment = yield pollApi(accountEmail, apiKey, accountId, project);
-      if (!deployment)
-        return;
-      if (process2.env.GITHUB_SHA && deployment.deployment_trigger.metadata.commit_hash !== process2.env.GITHUB_SHA) {
+      const deployment = yield pollApi(accountEmail, apiKey, accountId, project, commitHash);
+      if (!deployment) {
         console.log("Waiting for the deployment to start...");
         continue;
       }
@@ -11339,12 +11337,13 @@ function run() {
     }
   });
 }
-function pollApi(accountEmail, apiKey, accountId, project) {
+function pollApi(accountEmail, apiKey, accountId, project, commitHash) {
   return __async(this, null, function* () {
+    var _a, _b, _c;
     let res;
     let body;
     try {
-      res = yield fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments?page=1&per_page=1&sort_by=created_on&sort_order=desc`, {
+      res = yield fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments?sort_by=created_on&sort_order=desc`, {
         headers: {
           "X-Auth-Email": accountEmail,
           "X-Auth-Key": apiKey
@@ -11368,7 +11367,12 @@ function pollApi(accountEmail, apiKey, accountId, project) {
       core.setFailed(`Failed to check deployment status! Error: ${error2}`);
       return;
     }
-    return body.result[0];
+    if (!commitHash)
+      return (_a = body.result) == null ? void 0 : _a[0];
+    return (_c = (_b = body.result) == null ? void 0 : _b.find) == null ? void 0 : _c.call(_b, (deployment) => {
+      var _a2, _b2;
+      return ((_b2 = (_a2 = deployment.deployment_trigger) == null ? void 0 : _a2.metadata) == null ? void 0 : _b2.commit_hash) === commitHash;
+    });
   });
 }
 function sleep() {
