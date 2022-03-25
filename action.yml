@@ -17,6 +17,9 @@ inputs:
   githubToken:
     description: 'GitHub Token to use for deployments (GITHUB_TOKEN secret or your own token!) - OPTIONAL (Only used for GitHub Deployments)'
     required: false
+  commitHash:
+    description: 'The commit hash of the commit triggered the target deployment'
+    required: true
 outputs:
   id:
     description: 'Deployment ID'

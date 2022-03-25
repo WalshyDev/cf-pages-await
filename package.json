@@ -7,7 +7,7 @@
   "author": "Daniel Walsh (WalshyDev)",
   "license": "MIT",
   "scripts": {
-    "build": "esbuild src/action.ts --platform=node --bundle --outfile=dist/action.js"
+    "build": "esbuild src/action.ts --platform=node --target=es2019 --bundle --outfile=dist/action.js"
   },
   "dependencies": {
     "@actions/core": "^1.6.0",

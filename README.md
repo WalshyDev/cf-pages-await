@@ -13,6 +13,8 @@ Wait for a Cloudflare Pages build to finish so you can do actions like purge cac
     project: 'example-pages-project'
     # Add this if you want GitHub Deployments (see below)
     githubToken: ${{ secrets.GITHUB_TOKEN }}
+    # Add this if you want to wait for a deployment triggered by a specfied commit
+    commitHash: ${{ steps.push-changes.outputs.commit-hash }}
 ```
 
 ### Example
