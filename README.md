@@ -4,22 +4,32 @@ Wait for a Cloudflare Pages build to finish so you can do actions like purge cac
 
 ## Usage
 ```yml
-- name: Await CF Pages
-  uses: WalshyDev/cf-pages-await@v1
-  with:
-    # Uncomment these two lines if you wish to use the Global API Key (Not recommended!)
-    # accountEmail: ${{ secrets.CF_ACCOUNT_EMAIL  }}
-    # apiKey: ${{ secrets.CF_API_KEY  }}
+name: Deploy
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Allow GITHUB_TOKEN to write deployments for my action (https://docs.github.com/en/actions/security-guides/automatic-token-authentication)
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+    - name: Await CF Pages
+      uses: WalshyDev/cf-pages-await@v1
+      with:
+        # Uncomment these two lines if you wish to use the Global API Key (Not recommended!)
+        # accountEmail: ${{ secrets.CF_ACCOUNT_EMAIL  }}
+        # apiKey: ${{ secrets.CF_API_KEY  }}
 
-    # Use an API token (Recommended!)
-    apiToken: ${{ secrets.CF_API_TOKEN }}
+        # Use an API token (Recommended!)
+        apiToken: ${{ secrets.CF_API_TOKEN }}
 
-    accountId: '4e599df4216133509abaac54b109a647'
-    project: 'example-pages-project'
-    # Add this if you want GitHub Deployments (see below)
-    githubToken: ${{ secrets.GITHUB_TOKEN }}
-    # Add this if you want to wait for a deployment triggered by a specfied commit
-    commitHash: ${{ steps.push-changes.outputs.commit-hash }}
+        accountId: '4e599df4216133509abaac54b109a647'
+        project: 'example-pages-project'
+        # Add this if you want GitHub Deployments (see below)
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
+        # Add this if you want to wait for a deployment triggered by a specfied commit
+        commitHash: ${{ steps.push-changes.outputs.commit-hash }}
 ```
 
 ### Example
@@ -34,6 +44,9 @@ jobs:
     - name: Wait for CF Pages
       id: cf-pages
       uses: WalshyDev/cf-pages-await@v1
+      permissions:
+        contents: read
+        deployments: write
       with:
         apiToken: ${{ secrets.CF_API_TOKEN  }}
         accountId: '4e599df4216133509abaac54b109a647'
