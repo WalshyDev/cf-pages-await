@@ -3,11 +3,15 @@ description: 'Wait for Cloudflare Pages to build'
 author: 'WalshyDev'
 inputs:
   accountEmail:
-    description: 'Cloudflare account email (Needed for auth)'
-    required: true
+    description: 'Cloudflare account email (Not recommended)'
+    required: false
   apiKey:
-    description: 'Cloudflare API Key (Tokens aren''t supported in the API yet :( )'
-    required: true
+    description: 'Cloudflare API Key (Not recommended)'
+    required: false
+  apiToken:
+    description: 'Cloudflare API Token (Recommended)'
+    required: false
+
   accountId:
     description: 'Cloudflare account ID'
     required: true
