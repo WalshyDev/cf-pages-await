@@ -39,14 +39,14 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
     steps:
     - uses: actions/checkout@v2
     - name: Wait for CF Pages
       id: cf-pages
       uses: WalshyDev/cf-pages-await@v1
-      permissions:
-        contents: read
-        deployments: write
       with:
         apiToken: ${{ secrets.CF_API_TOKEN  }}
         accountId: '4e599df4216133509abaac54b109a647'
