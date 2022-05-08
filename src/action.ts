@@ -6,9 +6,9 @@ import { context } from '@actions/github/lib/utils';
 import { ApiResponse, Deployment } from './types';
 
 let waiting = true;
+// @ts-ignore - Typing GitHub's responses is a pain in the ass
 let ghDeployment;
 let markedAsInProgress = false;
-import { ApiResponse, Deployment } from './types';
 
 export default async function run() {
   const accountEmail = core.getInput('accountEmail', { required: true, trimWhitespace: true });
@@ -132,6 +132,7 @@ async function updateDeployment(token: string, deployment: Deployment, state: 's
     repo: context.repo.repo,
   };
 
+  // @ts-ignore
   if (!ghDeployment) {
     const { data } = await octokit.rest.repos.createDeployment({
       ...sharedOptions,
@@ -164,7 +165,9 @@ async function updateDeployment(token: string, deployment: Deployment, state: 's
 try {
   run();
 } catch(e) {
-  console.error('Please report this! Issues: https://github.com/WalshyDev/cf-pages-await/issues')
+  console.error('Please report this! Issues: https://github.com/WalshyDev/cf-pages-await/issues');
+  // @ts-ignore
   core.setFailed(e);
+  // @ts-ignore
   console.error(e.message + '\n' + e.stack);
 }
