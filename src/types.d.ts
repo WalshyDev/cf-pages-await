@@ -61,6 +61,12 @@ export interface ApiResponse {
   result: Deployment[];
 }
 
+export interface AuthHeaders {
+  Authorization?: string;
+  'X-Auth-Email'?: string;
+  'X-Auth-Key'?: string;
+}
+
 export interface Deployment {
   id: string;
   short_id: string;

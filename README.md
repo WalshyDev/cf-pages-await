@@ -4,17 +4,32 @@ Wait for a Cloudflare Pages build to finish so you can do actions like purge cac
 
 ## Usage
 ```yml
-- name: Await CF Pages
-  uses: WalshyDev/cf-pages-await@v1
-  with:
-    accountEmail: ${{ secrets.CF_ACCOUNT_EMAIL  }}
-    apiKey: ${{ secrets.CF_API_KEY  }}
-    accountId: '4e599df4216133509abaac54b109a647'
-    project: 'example-pages-project'
-    # Add this if you want GitHub Deployments (see below)
-    githubToken: ${{ secrets.GITHUB_TOKEN }}
-    # Add this if you want to wait for a deployment triggered by a specfied commit
-    commitHash: ${{ steps.push-changes.outputs.commit-hash }}
+name: Deploy
+on: push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Allow GITHUB_TOKEN to write deployments for my action (https://docs.github.com/en/actions/security-guides/automatic-token-authentication)
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+    - name: Await CF Pages
+      uses: WalshyDev/cf-pages-await@v1
+      with:
+        # Uncomment these two lines if you wish to use the Global API Key (Not recommended!)
+        # accountEmail: ${{ secrets.CF_ACCOUNT_EMAIL  }}
+        # apiKey: ${{ secrets.CF_API_KEY  }}
+
+        # Use an API token (Recommended!)
+        apiToken: ${{ secrets.CF_API_TOKEN }}
+
+        accountId: '4e599df4216133509abaac54b109a647'
+        project: 'example-pages-project'
+        # Add this if you want GitHub Deployments (see below)
+        githubToken: ${{ secrets.GITHUB_TOKEN }}
+        # Add this if you want to wait for a deployment triggered by a specfied commit
+        commitHash: ${{ steps.push-changes.outputs.commit-hash }}
 ```
 
 ### Example
@@ -29,17 +44,18 @@ jobs:
     - name: Wait for CF Pages
       id: cf-pages
       uses: WalshyDev/cf-pages-await@v1
+      permissions:
+        contents: read
+        deployments: write
       with:
-        accountEmail: ${{ secrets.CF_ACCOUNT_EMAIL  }}
-        apiKey: ${{ secrets.CF_API_KEY  }}
+        apiToken: ${{ secrets.CF_API_TOKEN  }}
         accountId: '4e599df4216133509abaac54b109a647'
         project: 'test'
         # Add this if you want GitHub Deployments (see below)
         githubToken: ${{ secrets.GITHUB_TOKEN }}
     - run: |
         curl -X \
-          -H "X-Auth-Email: ${{ secrets.CF_ACCOUNT_EMAIL }}" \
-          -H "X-Auth-Key: ${{ secrets.CF_API_KEY }}" \
+          -H "Authorization: ${{ secrets.CF_API_TOKEN }}" \
           -H "Content-Type: application/json" \
           --data '{"purge_everything":true}' \
           https://api.cloudflare.com/client/v4/zones/8d0c8239f88f98a8cb82ec7bb29b8556/purge_cache

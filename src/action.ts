@@ -3,7 +3,7 @@ import * as github from '@actions/github';
 import fetch, { Response } from 'node-fetch';
 
 import { context } from '@actions/github/lib/utils';
-import { ApiResponse, Deployment } from './types';
+import { ApiResponse, AuthHeaders, Deployment } from './types';
 
 let waiting = true;
 // @ts-ignore - Typing GitHub's responses is a pain in the ass
@@ -11,12 +11,21 @@ let ghDeployment;
 let markedAsInProgress = false;
 
 export default async function run() {
-  const accountEmail = core.getInput('accountEmail', { required: true, trimWhitespace: true });
-  const apiKey = core.getInput('apiKey', { required: true, trimWhitespace: true });
+  const accountEmail = core.getInput('accountEmail', { required: false, trimWhitespace: true });
+  const apiKey = core.getInput('apiKey', { required: false, trimWhitespace: true });
+  const apiToken = core.getInput('apiToken', { required: false, trimWhitespace: true })
+
   const accountId = core.getInput('accountId', { required: true, trimWhitespace: true });
   const project = core.getInput('project', { required: true, trimWhitespace: true });
   const token = core.getInput('githubToken', { required: false, trimWhitespace: true });
   const commitHash = core.getInput('commitHash', { required: false, trimWhitespace: true });
+
+  // Validate we have either token or both email + key
+  if (!validateAuthInputs(apiToken, accountEmail, apiKey)) {
+    return;
+  }
+
+  const authHeaders: AuthHeaders = apiToken !== '' ? { Authorization: `Bearer ${apiToken}` } : { 'X-Auth-Email': accountEmail, 'X-Auth-Key': apiKey };
 
   console.log('Waiting for Pages to finish building...');
   let lastStage = '';
@@ -25,7 +34,7 @@ export default async function run() {
     // We want to wait a few seconds, don't want to spam the API :)
     await sleep();
 
-    const deployment: Deployment|undefined = await pollApi(accountEmail, apiKey, accountId, project, commitHash);
+    const deployment: Deployment|undefined = await pollApi(authHeaders, accountId, project, commitHash);
     if (!deployment) {
       console.log('Waiting for the deployment to start...');
       continue;
@@ -70,7 +79,20 @@ export default async function run() {
   }
 }
 
-async function pollApi(accountEmail: string, apiKey: string, accountId: string, project: string, commitHash: string): Promise<Deployment|undefined> {
+function validateAuthInputs(token: string, email: string, key: string) {
+  if (token !==  '') {
+    return true;
+  }
+
+  if (email !== '' && key !== '') {
+    return true;
+  }
+
+  core.setFailed('Please specify authentication details! Set either `apiToken` or `accountEmail` + `accountKey`!');
+  return false;
+}
+
+async function pollApi(authHeaders: AuthHeaders, accountId: string, project: string, commitHash: string): Promise<Deployment|undefined> {
   // curl -X GET "https://api.cloudflare.com/client/v4/accounts/:account_id/pages/projects/:project_name/deployments" \
   //   -H "X-Auth-Email: user@example.com" \
   //   -H "X-Auth-Key: c2547eb745079dac9320b638f5e225cf483cc5cfdda41"
@@ -79,10 +101,7 @@ async function pollApi(accountEmail: string, apiKey: string, accountId: string, 
   // Try and fetch, may fail due to a network issue
   try {
     res = await fetch(`https://api.cloudflare.com/client/v4/accounts/${accountId}/pages/projects/${project}/deployments?sort_by=created_on&sort_order=desc`, {
-      headers: {
-        'X-Auth-Email': accountEmail,
-        'X-Auth-Key': apiKey,
-      }
+      headers: { ...authHeaders },
     });
   } catch(e) {
     // @ts-ignore
