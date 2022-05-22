@@ -63,7 +63,7 @@ jobs:
 
 ## Outputs
 * `id`          - Deployment ID, example: `50ff553c-da5d-4846-8188-25ae82a3bb7d`
-* `environment` - Envrionment for this deployment, either `production` or `preview`
+* `environment` - Environment for this deployment, either `production` or `preview`
 * `url`         - URL for this deployment
 * `alias`       - Alias URL (Will be the branch URL such as `fix-issue.project.pages.dev` or be the deployment URL)
 * `success`     - If the deployment was successful
