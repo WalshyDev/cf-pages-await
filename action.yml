@@ -23,7 +23,7 @@ inputs:
     required: false
   commitHash:
     description: 'The commit hash of the commit triggered the target deployment'
-    required: true
+    required: false
 outputs:
   id:
     description: 'Deployment ID'
