@@ -22,6 +22,7 @@ jobs:
         # apiKey: ${{ secrets.CF_API_KEY  }}
 
         # Use an API token (Recommended!)
+        # Needs the Account.Cloudflare Pages:Read permission
         apiToken: ${{ secrets.CF_API_TOKEN }}
 
         accountId: '4e599df4216133509abaac54b109a647'
