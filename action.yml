@@ -36,7 +36,7 @@ outputs:
   success:
     description: 'If the build passed or failed'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/action.js'
 branding:
   icon: 'cloud'
