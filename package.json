@@ -10,13 +10,13 @@
     "build": "esbuild src/action.ts --platform=node --target=es2019 --bundle --outfile=dist/action.js"
   },
   "dependencies": {
-    "@actions/core": "^1.6.0",
-    "@actions/github": "^5.0.0",
-    "node-fetch": "^3.0.0"
+    "@actions/core": "^1.10.1",
+    "@actions/github": "^6.0.0",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
-    "@types/node": "^16.11.6",
-    "esbuild": "^0.13.9",
-    "typescript": "^4.4.4"
+    "@types/node": "^22.4.1",
+    "esbuild": "^0.23.1",
+    "typescript": "^5.5.4"
   }
 }
