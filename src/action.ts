@@ -1,6 +1,5 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import fetch, { Response } from 'node-fetch';
 
 import { context } from '@actions/github/lib/utils';
 import { ApiResponse, AuthHeaders, Deployment } from './types';
