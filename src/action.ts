@@ -5,9 +5,12 @@ import fetch, { Response } from 'node-fetch';
 import { context } from '@actions/github/lib/utils';
 import { ApiResponse, AuthHeaders, Deployment } from './types';
 
+import { Endpoints } from "@octokit/types";
+
+type GithubDeployment = Endpoints["POST /repos/{owner}/{repo}/deployments"]["response"]["data"];
+
 let waiting = true;
-// @ts-ignore - Typing GitHub's responses is a pain in the ass
-let ghDeployment;
+let ghDeployment: GithubDeployment | undefined;
 let markedAsInProgress = false;
 
 export default async function run() {
@@ -151,7 +154,6 @@ async function updateDeployment(token: string, deployment: Deployment, state: 's
     repo: context.repo.repo,
   };
 
-  // @ts-ignore
   if (!ghDeployment) {
     const { data } = await octokit.rest.repos.createDeployment({
       ...sharedOptions,
