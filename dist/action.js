@@ -5295,6 +5295,13 @@ var require_body = __commonJS({
     var { isUint8Array, isArrayBuffer } = require("util/types");
     var { File: UndiciFile } = require_file();
     var { parseMIMEType, serializeAMimeType } = require_dataURL();
+    var random;
+    try {
+      const crypto = require("node:crypto");
+      random = (max) => crypto.randomInt(0, max);
+    } catch {
+      random = (max) => Math.floor(Math.random(max));
+    }
     var ReadableStream = globalThis.ReadableStream;
     var File = NativeFile != null ? NativeFile : UndiciFile;
     var textEncoder = new TextEncoder();
@@ -5337,7 +5344,7 @@ var require_body = __commonJS({
       } else if (ArrayBuffer.isView(object)) {
         source = new Uint8Array(object.buffer.slice(object.byteOffset, object.byteOffset + object.byteLength));
       } else if (util.isFormDataLike(object)) {
-        const boundary = `----formdata-undici-0${`${Math.floor(Math.random() * 1e11)}`.padStart(11, "0")}`;
+        const boundary = `----formdata-undici-0${`${random(1e11)}`.padStart(11, "0")}`;
         const prefix = `--${boundary}\r
 Content-Disposition: form-data`;
         const escape = (str) => str.replace(/\n/g, "%0A").replace(/\r/g, "%0D").replace(/"/g, "%22");
@@ -8893,6 +8900,14 @@ var require_pool = __commonJS({
         this[kOptions] = { ...util.deepClone(options), connect, allowH2 };
         this[kOptions].interceptors = options.interceptors ? { ...options.interceptors } : void 0;
         this[kFactory] = factory;
+        this.on("connectionError", (origin2, targets, error2) => {
+          for (const target of targets) {
+            const idx = this[kClients].indexOf(target);
+            if (idx !== -1) {
+              this[kClients].splice(idx, 1);
+            }
+          }
+        });
       }
       [kGetDispatcher]() {
         let dispatcher = this[kClients].find((dispatcher2) => !dispatcher2[kNeedDrain]);
@@ -11564,6 +11579,7 @@ var require_headers = __commonJS({
       isValidHeaderName,
       isValidHeaderValue
     } = require_util2();
+    var util = require("util");
     var { webidl } = require_webidl();
     var assert = require("assert");
     var kHeadersMap = Symbol("headers map");
@@ -11916,6 +11932,9 @@ var require_headers = __commonJS({
       [Symbol.toStringTag]: {
         value: "Headers",
         configurable: true
+      },
+      [util.inspect.custom]: {
+        enumerable: false
       }
     });
     webidl.converters.HeadersInit = function(V) {
@@ -15529,8 +15548,6 @@ var require_constants4 = __commonJS({
 var require_util6 = __commonJS({
   "node_modules/undici/lib/cookies/util.js"(exports2, module2) {
     "use strict";
-    var assert = require("assert");
-    var { kHeadersList } = require_symbols();
     function isCTLExcludingHtab(value) {
       if (value.length === 0) {
         return false;
@@ -15661,25 +15678,13 @@ var require_util6 = __commonJS({
       }
       return out.join("; ");
     }
-    var kHeadersListNode;
-    function getHeadersList(headers) {
-      if (headers[kHeadersList]) {
-        return headers[kHeadersList];
-      }
-      if (!kHeadersListNode) {
-        kHeadersListNode = Object.getOwnPropertySymbols(headers).find(
-          (symbol) => symbol.description === "headers list"
-        );
-        assert(kHeadersListNode, "Headers cannot be parsed");
-      }
-      const headersList = headers[kHeadersListNode];
-      assert(headersList);
-      return headersList;
-    }
     module2.exports = {
       isCTLExcludingHtab,
-      stringify,
-      getHeadersList
+      validateCookieName,
+      validateCookiePath,
+      validateCookieValue,
+      toIMFDate,
+      stringify
     };
   }
 });
@@ -15830,7 +15835,7 @@ var require_cookies = __commonJS({
   "node_modules/undici/lib/cookies/index.js"(exports2, module2) {
     "use strict";
     var { parseSetCookie } = require_parse();
-    var { stringify, getHeadersList } = require_util6();
+    var { stringify } = require_util6();
     var { webidl } = require_webidl();
     var { Headers } = require_headers();
     function getCookies(headers) {
@@ -15862,11 +15867,11 @@ var require_cookies = __commonJS({
     function getSetCookies(headers) {
       webidl.argumentLengthCheck(arguments, 1, { header: "getSetCookies" });
       webidl.brandCheck(headers, Headers, { strict: false });
-      const cookies = getHeadersList(headers).cookies;
+      const cookies = headers.getSetCookie();
       if (!cookies) {
         return [];
       }
-      return cookies.map((pair) => parseSetCookie(Array.isArray(pair) ? pair[1] : pair));
+      return cookies.map((pair) => parseSetCookie(pair));
     }
     function setCookie(headers, cookie) {
       webidl.argumentLengthCheck(arguments, 2, { header: "setCookie" });
@@ -20226,7 +20231,7 @@ var require_dist_node2 = __commonJS({
     });
     module2.exports = __toCommonJS2(dist_src_exports);
     var import_universal_user_agent = require_dist_node();
-    var VERSION = "9.0.5";
+    var VERSION = "9.0.6";
     var userAgent = `octokit-endpoint.js/${VERSION} ${(0, import_universal_user_agent.getUserAgent)()}`;
     var DEFAULTS = {
       method: "GET",
@@ -20316,9 +20321,9 @@ var require_dist_node2 = __commonJS({
         return `${name}=${encodeURIComponent(parameters[name])}`;
       }).join("&");
     }
-    var urlVariableRegex = /\{[^}]+\}/g;
+    var urlVariableRegex = /\{[^{}}]+\}/g;
     function removeNonChars(variableName) {
-      return variableName.replace(/^\W+|\W+$/g, "").split(/,/);
+      return variableName.replace(/(?:^\W+)|(?:(?<!\W)\W+$)/g, "").split(/,/);
     }
     function extractUrlVariableNames(url) {
       const matches = url.match(urlVariableRegex);
@@ -20499,7 +20504,7 @@ var require_dist_node2 = __commonJS({
         }
         if (url.endsWith("/graphql")) {
           if ((_a = options.mediaType.previews) == null ? void 0 : _a.length) {
-            const previewsFromAcceptHeader = headers.accept.match(/[\w-]+(?=-preview)/g) || [];
+            const previewsFromAcceptHeader = headers.accept.match(/(?<![\w-])[\w-]+(?=-preview)/g) || [];
             headers.accept = previewsFromAcceptHeader.concat(options.mediaType.previews).map((preview) => {
               const format = options.mediaType.format ? `.${options.mediaType.format}` : "+json";
               return `application/vnd.github.${preview}-preview${format}`;
@@ -20699,7 +20704,7 @@ var require_dist_node4 = __commonJS({
         if (options.request.headers.authorization) {
           requestCopy.headers = Object.assign({}, options.request.headers, {
             authorization: options.request.headers.authorization.replace(
-              / .*$/,
+              /(?<! ) .*$/,
               " [REDACTED]"
             )
           });
@@ -20759,7 +20764,7 @@ var require_dist_node5 = __commonJS({
     module2.exports = __toCommonJS2(dist_src_exports);
     var import_endpoint = require_dist_node2();
     var import_universal_user_agent = require_dist_node();
-    var VERSION = "8.4.0";
+    var VERSION = "8.4.1";
     function isPlainObject(value) {
       if (typeof value !== "object" || value === null)
         return false;
@@ -20810,7 +20815,7 @@ var require_dist_node5 = __commonJS({
           headers[keyAndValue[0]] = keyAndValue[1];
         }
         if ("deprecation" in headers) {
-          const matches = headers.link && headers.link.match(/<([^>]+)>; rel="deprecation"/);
+          const matches = headers.link && headers.link.match(/<([^<>]+)>; rel="deprecation"/);
           const deprecationLink = matches && matches.pop();
           log.warn(
             `[@octokit/request] "${requestOptions.method} ${requestOptions.url}" is deprecated. It is scheduled to be removed on ${headers.sunset}${deprecationLink ? `. See ${deprecationLink}` : ""}`
@@ -20962,16 +20967,16 @@ var require_dist_node6 = __commonJS({
       return to;
     };
     var __toCommonJS2 = (mod) => __copyProps2(__defProp2({}, "__esModule", { value: true }), mod);
-    var dist_src_exports = {};
-    __export2(dist_src_exports, {
+    var index_exports = {};
+    __export2(index_exports, {
       GraphqlResponseError: () => GraphqlResponseError,
       graphql: () => graphql2,
       withCustomRequest: () => withCustomRequest
     });
-    module2.exports = __toCommonJS2(dist_src_exports);
+    module2.exports = __toCommonJS2(index_exports);
     var import_request3 = require_dist_node5();
     var import_universal_user_agent = require_dist_node();
-    var VERSION = "7.1.0";
+    var VERSION = "7.1.1";
     var import_request2 = require_dist_node5();
     var import_request = require_dist_node5();
     function _buildMessageForResponseErrors(data) {
@@ -21011,8 +21016,7 @@ var require_dist_node6 = __commonJS({
           );
         }
         for (const key in options) {
-          if (!FORBIDDEN_VARIABLE_OPTIONS.includes(key))
-            continue;
+          if (!FORBIDDEN_VARIABLE_OPTIONS.includes(key)) continue;
           return Promise.reject(
             new Error(
               `[@octokit/graphql] "${key}" cannot be used as variable name`
@@ -21171,17 +21175,17 @@ var require_dist_node8 = __commonJS({
       return to;
     };
     var __toCommonJS2 = (mod) => __copyProps2(__defProp2({}, "__esModule", { value: true }), mod);
-    var dist_src_exports = {};
-    __export2(dist_src_exports, {
+    var index_exports = {};
+    __export2(index_exports, {
       Octokit: () => Octokit
     });
-    module2.exports = __toCommonJS2(dist_src_exports);
+    module2.exports = __toCommonJS2(index_exports);
     var import_universal_user_agent = require_dist_node();
     var import_before_after_hook = require_before_after_hook();
     var import_request = require_dist_node5();
     var import_graphql = require_dist_node6();
     var import_auth_token = require_dist_node7();
-    var VERSION = "5.2.0";
+    var VERSION = "5.2.1";
     var noop = () => {
     };
     var consoleWarn = console.warn.bind(console);
@@ -23487,7 +23491,7 @@ var require_dist_node10 = __commonJS({
       paginatingEndpoints: () => paginatingEndpoints
     });
     module2.exports = __toCommonJS2(dist_src_exports);
-    var VERSION = "9.2.1";
+    var VERSION = "9.2.2";
     function normalizePaginatedListResponse(response) {
       if (!response.data) {
         return {
@@ -23531,7 +23535,7 @@ var require_dist_node10 = __commonJS({
               const response = await requestMethod({ method, url, headers });
               const normalizedResponse = normalizePaginatedListResponse(response);
               url = ((normalizedResponse.headers.link || "").match(
-                /<([^>]+)>;\s*rel="next"/
+                /<([^<>]+)>;\s*rel="next"/
               ) || [])[1];
               return { value: normalizedResponse };
             } catch (error2) {
